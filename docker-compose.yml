@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   backend:
-    image: ${CI_REGISTRY_IMAGE}:backend-${VERSION}
+    image: hircine01/jenkins-backend:${VERSION:-latest}
     container_name: backend-api
     restart: always
     networks:
       - app-network
     environment:
-      - VERSION=${VERSION}
+      - VERSION=${VERSION:-latest}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -17,7 +17,7 @@ services:
       start_period: 10s
 
   nginx:
-    image: ${CI_REGISTRY_IMAGE}:${VERSION}
+    image: hircine01/jenkins-nginx:${VERSION:-latest}
     container_name: nginx-web
     restart: always
     ports:
