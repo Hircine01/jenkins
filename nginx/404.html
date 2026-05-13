@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Страница не найдена</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 120px;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+        }
+        h2 {
+            font-size: 32px;
+            margin: 20px 0;
+        }
+        p {
+            font-size: 18px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        a {
+            display: inline-block;
+            background: #ffffff;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 60px; }
+            h2 { font-size: 24px; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <h2>Страница не найдена</h2>
+        <p>Извините, но запрашиваемая страница не существует<br>
+        или была перемещена.</p>
+        <a href="/">🏠 Вернуться на главную</a>
+    </div>
+</body>
+</html>

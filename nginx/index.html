@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Demo - Test App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+        .api-data {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ok {
+            background: #10b981;
+            color: white;
+        }
+        .status.error {
+            background: #ef4444;
+            color: white;
+        }
+        button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 30px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8em; }
+            .cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CI/CD Pipeline Demo</h1>
+            <p class="subtitle">Full Stack Application with Nginx + Python Flask Backend</p>
+            <p>Deployed via GitLab CI/CD</p>
+        </div>
+
+        <div class="cards">
+            <!-- Health Card -->
+            <div class="card">
+                <h3>🩺 Health Check</h3>
+                <div id="health-data" class="api-data">
+                    <span class="status" id="health-status">Loading...</span>
+                    <pre id="health-content" style="margin-top: 10px; font-size: 12px;"></pre>
+                </div>
+                <button onclick="fetchHealth()">🔄 Refresh</button>
+            </div>
+
+            <!-- Message Card -->
+            <div class="card">
+                <h3>💬 Message from Backend</h3>
+                <div id="message-data" class="api-data">
+                    <span id="message-content">Loading...</span>
+                </div>
+                <button onclick="fetchMessage()">🔄 Refresh</button>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card">
+                <h3>ℹ️ Backend Info</h3>
+                <div id="info-data" class="api-data">
+                    <pre id="info-content" style="font-size: 12px;">Loading...</pre>
+                </div>
+                <button onclick="fetchInfo()">🔄 Refresh</button>
+            </div>
+        </div>
+
+        <!-- Docker Info -->
+        <div class="card" style="margin-top: 20px;">
+            <h3>🐳 Container Info</h3>
+            <div class="api-data">
+                <p><strong>Frontend:</strong> Nginx (Port 80)</p>
+                <p><strong>Backend:</strong> Python/Flask + Gunicorn (Port 5000)</p>
+                <p><strong>Deployment:</strong> GitLab CI/CD + Kaniko</p>
+                <p><strong>Version:</strong> <span id="version"></span></p>
+                <p><strong>Deployed:</strong> <span id="timestamp"></span></p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Automated deployment via GitLab CI/CD | Nginx + Python Flask Backend</p>
+            <p><a href="/api/health" target="_blank" style="color: white;">API Endpoint: /api/health</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        async function fetchHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                const statusElem = document.getElementById('health-status');
+                statusElem.textContent = '✅ Healthy';
+                statusElem.className = 'status ok';
+                
+                document.getElementById('health-content').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                const statusElem = document.getElementById('health-status');
+                statusElem.textContent = '❌ Error';
+                statusElem.className = 'status error';
+                document.getElementById('health-content').textContent = error.message;
+            }
+        }
+        
+        async function fetchMessage() {
+            try {
+                const response = await fetch(`${API_BASE}/message`);
+                const data = await response.json();
+                document.getElementById('message-content').innerHTML = `
+                    <strong>Message:</strong> ${data.message}<br>
+                    <strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}
+                `;
+            } catch (error) {
+                document.getElementById('message-content').textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function fetchInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/info`);
+                const data = await response.json();
+                document.getElementById('info-content').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('info-content').textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Load all data on page load
+        fetchHealth();
+        fetchMessage();
+        fetchInfo();
+        
+        // Set version and timestamp
+        document.getElementById('version').textContent = '${VERSION}';
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Auto-refresh health every 30 seconds
+        setInterval(fetchHealth, 30000);
+    </script>
+</body>
+</html>
