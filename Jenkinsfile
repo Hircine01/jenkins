@@ -55,13 +55,8 @@ pipeline {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '
-                            # Создаём директорию если её нет
-                            sudo mkdir -p /opt/jenkins-demo
-                            sudo chown -R ${DEPLOY_USER}:${DEPLOY_USER} /opt/jenkins-demo
-                            
                             cd /opt/jenkins-demo
                             
-                            # Создаём docker-compose.yml
                             cat > docker-compose.yml << "EOF"
         version: "3.8"
 
@@ -98,7 +93,6 @@ pipeline {
             driver: bridge
         EOF
                             
-                            # Деплой
                             docker-compose down
                             docker-compose pull
                             docker-compose up -d
