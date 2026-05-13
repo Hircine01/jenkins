@@ -2,7 +2,7 @@ pipeline {
     agent { label 'production-agent' }
     
     environment {
-        DOCKER_HUB_CRED = 'docker-hub-token'
+        DOCKER_HUB_CRED = 'docker-hub-username-password'
         DEPLOY_HOST = '192.168.0.221'
         DEPLOY_USER = 'deployer'
         VERSION = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
