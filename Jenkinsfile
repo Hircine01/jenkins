@@ -55,45 +55,50 @@ pipeline {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '
-                            mkdir -p /opt/jenkins-demo &&
-                            cd /opt/jenkins-demo &&
+                            # Создаём директорию если её нет
+                            sudo mkdir -p /opt/jenkins-demo
+                            sudo chown -R ${DEPLOY_USER}:${DEPLOY_USER} /opt/jenkins-demo
                             
+                            cd /opt/jenkins-demo
+                            
+                            # Создаём docker-compose.yml
                             cat > docker-compose.yml << "EOF"
-                            version: "3.8"
+        version: "3.8"
+
+        services:
+        backend:
+            image: hircine01/jenkins-backend:${VERSION}
+            container_name: backend-api
+            restart: always
+            networks:
+            - app-network
+            environment:
+            - VERSION=${VERSION}
+            healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 10s
+
+        nginx:
+            image: hircine01/jenkins-nginx:${VERSION}
+            container_name: nginx-web
+            restart: always
+            ports:
+            - "80:80"
+            networks:
+            - app-network
+            depends_on:
+            backend:
+                condition: service_healthy
+
+        networks:
+        app-network:
+            driver: bridge
+        EOF
                             
-                            services:
-                              backend:
-                                image: hircine01/jenkins-backend:${VERSION}
-                                container_name: backend-api
-                                restart: always
-                                networks:
-                                  - app-network
-                                environment:
-                                  - VERSION=${VERSION}
-                                healthcheck:
-                                  test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
-                                  interval: 30s
-                                  timeout: 5s
-                                  retries: 3
-                                  start_period: 10s
-                            
-                              nginx:
-                                image: hircine01/jenkins-nginx:${VERSION}
-                                container_name: nginx-web
-                                restart: always
-                                ports:
-                                  - "80:80"
-                                networks:
-                                  - app-network
-                                depends_on:
-                                  backend:
-                                    condition: service_healthy
-                            
-                            networks:
-                              app-network:
-                                driver: bridge
-                            EOF
-                            
+                            # Деплой
                             docker-compose down
                             docker-compose pull
                             docker-compose up -d
