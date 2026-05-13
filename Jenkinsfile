@@ -57,8 +57,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '
                             cd /opt/jenkins-demo
                             
-                            cat > docker-compose.yml << "EOF"
-        version: "3.8"
+                            printf "%s" "version: \"3.8\"
 
         services:
         backend:
@@ -70,7 +69,7 @@ pipeline {
             environment:
             - VERSION=${VERSION}
             healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+            test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:5000/api/health\"]
             interval: 30s
             timeout: 5s
             retries: 3
@@ -81,7 +80,7 @@ pipeline {
             container_name: nginx-web
             restart: always
             ports:
-            - "80:80"
+            - \"80:80\"
             networks:
             - app-network
             depends_on:
@@ -91,7 +90,7 @@ pipeline {
         networks:
         app-network:
             driver: bridge
-        EOF
+        " > docker-compose.yml
                             
                             docker-compose down
                             docker-compose pull
@@ -99,7 +98,7 @@ pipeline {
                             docker system prune -f
                             
                             echo "✅ Deployment successful!"
-                            echo "App is running at http://${DEPLOY_HOST}"
+                            echo "App is running at http://192.168.0.221"
                         '
                     """
                 }
