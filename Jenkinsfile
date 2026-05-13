@@ -92,13 +92,14 @@ pipeline {
             driver: bridge
         " > docker-compose.yml
                             
-                            docker-compose down
-                            docker-compose pull
-                            docker-compose up -d
+                            # Используем "docker compose" вместо "docker-compose"
+                            docker compose down
+                            docker compose pull
+                            docker compose up -d
                             docker system prune -f
                             
                             echo "✅ Deployment successful!"
-                            echo "App is running at http://192.168.0.221"
+                            echo "App is running at http://${DEPLOY_HOST}"
                         '
                     """
                 }
